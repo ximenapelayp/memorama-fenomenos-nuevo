@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco-Tempest: Equilibrio Elemental</title>
+  <meta name="description" content="Un juego de arcade/puzzle con fenómenos naturales vibrantes. Defiende el núcleo del ecosistema absorbiendo erupciones volcánicas, auroras boreales, tsunamis y tornados." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- PANTALLA DE INICIO -->
+  <div id="screen-menu" class="screen active">
+    <canvas id="bg-canvas"></canvas>
+    <div class="menu-content glass-card">
+      <div class="logo-container">
+        <h1 id="game-title">ECO-TEMPEST</h1>
+        <p class="subtitle">EQUILIBRIO ELEMENTAL</p>
+      </div>
+      <div class="elements-preview">
+        <div class="elem-badge volcano">🌋 Volcán</div>
+        <div class="elem-badge aurora">🌌 Aurora</div>
+        <div class="elem-badge tsunami">🌊 Tsunami</div>
+        <div class="elem-badge tornado">🌪️ Tornado</div>
+      </div>
+      <div class="menu-buttons">
+        <button id="btn-play" class="btn btn-primary" onclick="Game.startGame()">
+          <span>▶ JUGAR</span>
+        </button>
+        <button id="btn-howto" class="btn btn-secondary" onclick="Game.showHowTo()">
+          <span>? CÓMO JUGAR</span>
+        </button>
+      </div>
+      <p class="version-tag">v1.0 · Fenómenos Naturales Edition</p>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE INSTRUCCIONES -->
+  <div id="screen-howto" class="screen">
+    <canvas id="bg-canvas-howto"></canvas>
+    <div class="howto-content glass-card">
+      <h2>🌍 CÓMO JUGAR</h2>
+      <div class="instructions-grid">
+        <div class="instr-item">
+          <div class="instr-icon">🔄</div>
+          <div class="instr-text"><strong>Rota el escudo</strong> con <kbd>← →</kbd>, <kbd>A D</kbd> o arrastrando la pantalla.</div>
+        </div>
+        <div class="instr-item">
+          <div class="instr-icon">🎯</div>
+          <div class="instr-text"><strong>Alinea el color correcto</strong> del escudo con la esfera que se acerca.</div>
+        </div>
+        <div class="instr-item">
+          <div class="instr-icon">💥</div>
+          <div class="instr-text"><strong>Acierto = explosión espectacular</strong> de partículas del fenómeno natural.</div>
+        </div>
+        <div class="instr-item">
+          <div class="instr-icon">❤️</div>
+          <div class="instr-text"><strong>Color equivocado = daño</strong> al núcleo. ¡3 fallos y termina el juego!</div>
+        </div>
+        <div class="instr-item">
+          <div class="instr-icon">⚡</div>
+          <div class="instr-text"><strong>Combos x5 = Poder Planetario</strong>. Presiona <kbd>ESPACIO</kbd> para liberar.</div>
+        </div>
+      </div>
+      <div class="legend-grid">
+        <div class="legend-item" style="--color:#FF4500">🌋 Volcán = Rojo/Naranja</div>
+        <div class="legend-item" style="--color:#00FFAA">🌌 Aurora = Verde/Púrpura</div>
+        <div class="legend-item" style="--color:#00BFFF">🌊 Tsunami = Azul/Cian</div>
+        <div class="legend-item" style="--color:#FFD700">🌪️ Tornado = Dorado/Plata</div>
+      </div>
+      <button class="btn btn-primary" onclick="Game.showMenu()">↩ VOLVER</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DEL JUEGO -->
+  <div id="screen-game" class="screen">
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-block">
+        <div class="hud-label">PUNTOS</div>
+        <div id="score-display" class="hud-value glow-text">0</div>
+      </div>
+      <div class="hud-block center-hud">
+        <div class="hearts-container" id="hearts">
+          <span class="heart" id="heart-1">❤️</span>
+          <span class="heart" id="heart-2">❤️</span>
+          <span class="heart" id="heart-3">❤️</span>
+        </div>
+        <div id="combo-display" class="combo-badge hidden">COMBO x<span id="combo-count">0</span></div>
+      </div>
+      <div class="hud-block right-hud">
+        <div class="hud-label">NIVEL</div>
+        <div id="level-display" class="hud-value glow-text">1</div>
+      </div>
+    </div>
+
+    <!-- CANVAS PRINCIPAL -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- INSTRUCCIONES IN-GAME -->
+    <div id="controls-hint" class="controls-hint">
+      <kbd>← →</kbd> o <kbd>A/D</kbd> para rotar · <kbd>ESPACIO</kbd> para poder especial
+    </div>
+
+    <!-- PODER ESPECIAL -->
+    <div id="power-bar-container">
+      <div class="power-label">⚡ PODER</div>
+      <div class="power-bar-bg">
+        <div id="power-bar" class="power-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE GAME OVER -->
+  <div id="screen-gameover" class="screen">
+    <canvas id="bg-canvas-go"></canvas>
+    <div class="gameover-content glass-card">
+      <div class="go-icon">💀</div>
+      <h2 class="go-title">GAME OVER</h2>
+      <p class="go-subtitle">El ecosistema fue destruido</p>
+      <div class="go-stats">
+        <div class="stat-row">
+          <span class="stat-label">Puntuación Final</span>
+          <span id="final-score" class="stat-value glow-text">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Nivel Alcanzado</span>
+          <span id="final-level" class="stat-value glow-text">1</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mejor Combo</span>
+          <span id="final-combo" class="stat-value glow-text">0</span>
+        </div>
+      </div>
+      <div class="go-buttons">
+        <button id="btn-restart" class="btn btn-primary" onclick="Game.startGame()">▶ REINTENTAR</button>
+        <button id="btn-menu-go" class="btn btn-secondary" onclick="Game.showMenu()">🏠 MENÚ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIONES FLOTANTES -->
+  <div id="notification-container"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
